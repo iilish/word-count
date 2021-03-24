@@ -1,0 +1,14 @@
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/target/
+project/project/
+.bsp
+
+*.db
+.idea
+*.iml
+
+
+/tmp
