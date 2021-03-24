@@ -81,24 +81,23 @@ The following option allows you to change the strategy count.
 -v, --socket-server-window-strategy <value>
 Window strategy to use [`watermark` | event-count | event-time]
 ```
-Each option has its configurations associated
-###watermark
+Each option has its configurations associated  
+#### watermark
 ```
 -v watermark --socket-server-watermark-interval 5000 <Interval of processing time in milliseconds>
 ```
-For this example the window will finish every 5 seconds processing time.
-###event-count
+For this example the window will finish every 5 seconds processing time.  
+#### event-count
 ```
 -v event-count --socket-server-event-count-limit 100 <Number of events by window>
 ```
-For this example the window will finish every 100 events received, regardless of the processing time.
-###event-time
+For this example the window will finish every 100 events received, regardless of the processing time.  
+#### event-time
 ```
 -v event-time --socket-server-event-time-limit 5000 <Interval of event time in milliseconds>
 ```
-For this example the window will finish every 5 seconds event time (the timestamp field of the messages).
-
-####The following are all the options available to count the word from the blackbox binary: 
+For this example the window will finish every 5 seconds event time (the timestamp field of the messages).  
+#### The following are all the options available to count the word from the blackbox binary: 
 
 ``` 
 BlackBox Word Count 1.0
