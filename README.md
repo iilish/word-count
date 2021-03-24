@@ -19,6 +19,17 @@ An external component is required (`nc`) to perform the redirection from the con
 ```
 ./blackbox.amd64 | nc locahost 1234
 ```
+Both commands are defined in the `src/main/resources/application.conf` file.  
+In order to change the commands `./blackbox.amd64` and `nc localhost 1234`.  
+You can edit the blackbox part of this file, to allow the launcher find the blackbox application in your local machine.  
+If you want to use other command instead of `nc` you need to update `blackbox.netcat-cmd` accordingly.
+````
+blackbox {
+app-path = "/path/to/blackbox.amd64"
+netcat-cmd = "nc localhost 1234"
+wait-in-seconds = 5
+}
+````
 Netcat can be installed in [Windows](https://sourceforge.net/projects/nc110/), [MacOSx](http://macappstore.org/netcat/) or [others](https://zoomadmin.com/HowToInstall/UbuntuPackage/netcat) Linux based operating system.
 
 #### Http server
