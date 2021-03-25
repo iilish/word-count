@@ -1,7 +1,7 @@
 import Dependencies.Libraries.{compileDependencies, testDependencies}
 
 name := "zio-tech-challenge"
-version := "1.0.0"
+version := "1.0.1-SNAPSHOT"
 scalaVersion := "2.13.4"
 addCommandAlias("fmt", "all scalafmtSbt scalafmtAll")
 

@@ -8,10 +8,12 @@ import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.middleware.AutoSlash
 import org.http4s.{HttpRoutes, Request, Response}
 import org.irach.challenge.module.repo.Repository.Repository
+import zio._
 import zio.clock.Clock
 import zio.interop.catz._
-import zio._
+import zio.macros.accessible
 
+@accessible
 object APIServer {
   type APIServer = Has[APIServer.Service]
   type LocalEnvironment = Clock with Repository
@@ -19,13 +21,13 @@ object APIServer {
   type ServerRoutes = Kleisli[ServerRIO, Request[ServerRIO], Response[ServerRIO]]
 
   trait Service {
-    def start(host: String, port: Int): ZIO[Clock with Repository, Nothing, Unit]
+    def start(host: String, port: Int): RIO[Clock with Repository, Unit]
   }
 
   lazy val live: ZLayer[Clock with Repository, Nothing, APIServer] = ZIO.succeed(new Service {
     val Root = "/"
 
-    override def start(host: String, port: Int): ZIO[Clock with Repository, Nothing, Unit] = {
+    override def start(host: String, port: Int): RIO[Clock with Repository, Unit] = {
 
       ZIO.runtime[Clock with Repository].flatMap { implicit rts =>
         val ec = rts.platform.executor.asEC
@@ -36,7 +38,7 @@ object APIServer {
           .serve
           .compile[ServerRIO, ServerRIO, ExitCode]
           .drain
-      }.orDie
+      }.resurrect
     }
 
     def createRoutes(basePath: String): ServerRoutes = {
@@ -49,8 +51,5 @@ object APIServer {
     }
   }
   ).toLayer
-
-  def startAPIServer(host: String, port: Int): URIO[APIServer with Clock with Repository, Unit] =
-    ZIO.accessM(_.get.start(host, port))
 
 }
