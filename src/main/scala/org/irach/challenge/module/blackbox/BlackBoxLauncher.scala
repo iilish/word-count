@@ -19,6 +19,7 @@ object BlackBoxLauncher {
       new Service {
         override def launch(conf: BlackBoxConfig): IO[Throwable, String] =
           Task((s"${conf.appPath}" #| s"${conf.netcatCmd}").!!)
+            .orElseFail(new RuntimeException(s"An error has occurred while launching the command `${conf.appPath}` | `${conf.netcatCmd}`"))
       }
     ).toLayer
 }

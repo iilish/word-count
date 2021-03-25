@@ -6,7 +6,7 @@ import org.irach.challenge.environment.config.Configuration.{APIConfig, BlackBox
 import org.irach.challenge.module.accumulator.Accumulator
 import org.irach.challenge.module.accumulator.Accumulator.aggregate
 import org.irach.challenge.module.api.APIServer
-import org.irach.challenge.module.api.APIServer.startAPIServer
+import org.irach.challenge.module.api.APIServer.start
 import org.irach.challenge.module.blackbox.BlackBoxLauncher
 import org.irach.challenge.module.blackbox.BlackBoxLauncher.launch
 import org.irach.challenge.module.parser.EventParser
@@ -37,28 +37,28 @@ object WordCountApp extends zio.App {
     ))
     _ <- info("initializing services") *>
       initializeApplication(socketConf) <*
-      info("Starting word count process")
+      info("Starting word count process...")
 
-    socketFiber <- rawStream(socketConf.host, socketConf.port, socketConf.numberOfConnections)
+    socketFiber <- info(s"***** socketConfig => [$socketConf]") *> rawStream(socketConf.host, socketConf.port, socketConf.numberOfConnections)
       .merge(Stream(Watermark(1)).repeat(Schedule.spaced(socketConf.watermarkInterval.milliseconds)))
       .mapM(aggregate)
       .runDrain
       .when(socketConf.runFlag)
       .fork
 
-    apiFiber <- (info(s"HTTP $apiConf") *> startAPIServer(apiConf.host, apiConf.port))
+    apiFiber <- (info(s"***** apiConfig => [$apiConf]") *> start(apiConf.host, apiConf.port))
       .when(apiConf.runFlag)
       .fork
 
     blackboxFiber <- (info("Waiting socket server startup before launching blackbox.amd64 ...") *>
       ZIO.sleep(blackboxConf.waitInSeconds.seconds) *>
-      launch(blackboxConf).either)
+      info(s"***** blackboxConfig => [$blackboxConf]") *> launch(blackboxConf))
       .when(blackboxConf.runFlag)
       .fork
 
-    _ <- socketFiber.await
-    _ <- apiFiber.await
-    _ <- blackboxFiber.await
+    _ <- info("Up and running!")
+    syntheticFiber = apiFiber <*> socketFiber <*> blackboxFiber
+    _ <- syntheticFiber.join
   } yield ()
 
   private lazy val appLayer = {
